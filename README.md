@@ -6,7 +6,7 @@ This project aims to build a deep learning model using TensorFlow to predict emp
 ## Project Structure
 - `data/`: Contains the dataset.
 - `logs/`: Contains log files.
-- `src/`: Contains the main source code for data processing, EDA, feature engineering, model training, evaluation, and utilities.
+- `src/`: Contains the main source code for data processing, EDA, model     training, evaluation, and utilities.
 - `tests/`: Contains test scripts.
 - `main.py`: The main script to run the analysis.
 - `README.md`: Project documentation.

@@ -1,9 +1,27 @@
 
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
+import logging
+import tensorflow as tf
 
-def evaluate_model(model, X_test, y_test):
-    y_pred = (model.predict(X_test) > 0.5).astype("int32")
-    accuracy = accuracy_score(y_test, y_pred)
-    report = classification_report(y_test, y_pred)
-    print(f"Accuracy: {accuracy}")
-    print(f"Classification Report:\n{report}")
+def evaluate_model(model, x_test, y_test):
+    """
+    Evaluate the model performance.
+    
+    Parameters:
+    model: The trained model.
+    x_test (DataFrame): The test features.
+    y_test (Series): The test labels.
+    
+    Returns:
+    float: The accuracy of the model.
+    """
+    try:
+        logging.info("Evaluating model...")
+        y_preds = model.predict(x_test)
+        y_preds = tf.round(y_preds)
+        accuracy = accuracy_score(y_test, y_preds)
+        logging.info(f"Model accuracy: {accuracy}")
+        return accuracy
+    except Exception as e:
+        logging.error("Error in model evaluation: %s", e)
+        raise

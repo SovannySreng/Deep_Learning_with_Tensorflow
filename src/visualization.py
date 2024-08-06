@@ -1,15 +1,42 @@
-
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+import pandas as pd
+import numpy as np
+import logging
 
-def plot_histograms(df: pd.DataFrame, num_cols: list):
-    df[num_cols].hist(figsize=(14, 14))
-    plt.show()
-
-def plot_categorical_distribution(df: pd.DataFrame, cat_cols: list):
-    for col in cat_cols:
-        pd.crosstab(df[col], df['Attrition'], normalize='index').plot(kind='bar', figsize=(8, 4), stacked=True)
-        plt.ylabel('Attrition Percentage')
-        plt.title(f'Distribution of {col} by Attrition')
+def plot_loss_curves(history):
+    """
+    Plot the loss curves from the training history.
+    
+    Parameters:
+    history: The training history.
+    """
+    try:
+        logging.info("Plotting loss curves...")
+        pd.DataFrame(history.history).plot()
+        plt.title("Training curves")
+        plt.xlabel("Epochs")
+        plt.ylabel("Loss/Accuracy")
         plt.show()
+    except Exception as e:
+        logging.error("Error in plotting loss curves: %s", e)
+        raise
+
+def plot_learning_rate_vs_loss(history):
+    """
+    Plot learning rate vs. loss.
+    
+    Parameters:
+    history: The training history.
+    """
+    try:
+        logging.info("Plotting learning rate vs. loss...")
+        lrs = 1e-5 * (10 ** (np.arange(len(history.history["loss"]))/20))
+        plt.figure(figsize=(10, 7))
+        plt.semilogx(lrs, history.history["loss"]) # we want the x-axis (learning rate) to be log scale
+        plt.xlabel("Learning Rate")
+        plt.ylabel("Loss")
+        plt.title("Learning rate vs. loss")
+        plt.show()
+    except Exception as e:
+        logging.error("Error in plotting learning rate vs. loss: %s", e)
+        raise

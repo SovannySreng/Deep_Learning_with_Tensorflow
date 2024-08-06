@@ -1,47 +1,48 @@
-
-from src.data_preprocessing import load_data, preprocess_data
-from src.eda import eda
-from src.feature_engineering import feature_engineering
-from src.model_training import train_model
+import logging
+import tensorflow as tf
+import pandas as pd
+import numpy as np
+from src.data_preprocessing import load_and_preprocess_data
+from src.eda import perform_eda
 from src.evaluation import evaluate_model
-from src.visualization import plot_histograms, plot_categorical_distribution
-from src.utils import setup_logging, log_error
+from src.model_training import create_model, compile_model, train_model
+from src.visualization import plot_loss_curves, plot_learning_rate_vs_loss
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[
+    logging.FileHandler("employee_attrition.log"),
+    logging.StreamHandler()
+])
 
 def main():
-    setup_logging()
-    
     try:
-        df = load_data('H:/My Drive/BISI II/Data Science/Term Assignments/Deep_Learning_with_Tensorflow/data/employee_attrition.csv')  # Use relative path
+        # Step 1: Load and preprocess data
+        x_train, x_test, y_train, y_test = load_and_preprocess_data('H:/My Drive/BISI II/Data Science/Term Assignments/Deep_Learning_with_Tensorflow/data/employee_attrition.csv')
         
-        # Perform EDA
-        eda(df)
+        # Step 2: Perform EDA
+        df = pd.read_csv('H:/My Drive/BISI II/Data Science/Term Assignments/Deep_Learning_with_Tensorflow/data/employee_attrition.csv')
+        perform_eda(df)
         
-        # Preprocess Data
-        df = preprocess_data(df)
+        # Step 3: Create and compile the model
+        model = create_model([
+            tf.keras.layers.Dense(1, activation='sigmoid')
+        ])
+        model = compile_model(model, learning_rate=0.001)
         
-        # Feature Engineering
-        df = feature_engineering(df)
+        # Step 4: Train the model
+        history = train_model(model, x_train, y_train, epochs=100)
         
-        # Visualizations
-        num_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
-        cat_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+        # Step 5: Evaluate the model
+        accuracy = evaluate_model(model, x_test, y_test)
+        logging.info(f"Model accuracy: {accuracy}")
         
-        plot_histograms(df, num_cols)
-        plot_categorical_distribution(df, cat_cols)
-        
-        # Prepare data for training
-        X = df.drop(columns=['Attrition'])  # Adjust according to your feature columns
-        y = df['Attrition'].apply(lambda x: 1 if x == 'Yes' else 0)
-        
-        # Train the model
-        model = train_model(X, y)
-        
-        # Evaluate the model
-        evaluate_model(model, X, y)
+        # Step 6: Visualize the results
+        plot_loss_curves(history)
+        plot_learning_rate_vs_loss(history)
         
     except Exception as e:
-        log_error(e)
-        print(f"An error occurred: {e}")
+        logging.error("Error in main function: %s", e)
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
